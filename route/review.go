@@ -18,7 +18,7 @@ type Review struct {
 	UserID      string `form:"user_id" binding:"required"`
 }
 
-// PutReview ::
+// PutReview :: [Post] /review/insert
 func PutReview(c *gin.Context) {
 	var review Review
 	err := c.Bind(&review)

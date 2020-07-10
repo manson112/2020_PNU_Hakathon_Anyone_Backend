@@ -2,6 +2,7 @@ package route
 
 import (
 	"anyone-server/database"
+	"anyone-server/model"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -26,7 +27,7 @@ type StoreInfo struct {
 	Wifi        int    `json:"wifi"`
 }
 
-// GetStoreInfo ::
+// GetStoreInfo :: [Get] /store/get/:id
 func GetStoreInfo(c *gin.Context) {
 	storeID := c.Param("store_id")
 
@@ -47,7 +48,6 @@ func GetStoreInfo(c *gin.Context) {
 		"LEFT JOIN hashtaged_store D ON A.id = D.store_id " +
 		"LEFT JOIN hashtags E ON D.hashtag_id = E.id " +
 		"WHERE A.id=" + storeID + ";"
-
 	db := database.DB()
 	err := db.QueryRow(query).Scan(&storeInfo.ID, &storeInfo.CategoryID,
 		&storeInfo.Category, &storeInfo.StoreName,
@@ -61,9 +61,10 @@ func GetStoreInfo(c *gin.Context) {
 	if err != nil {
 		log.Println(err)
 		log.Println("Cannot exec query")
+		c.JSON(400, model.Get400Response(""))
 		return
 	}
 
-	c.JSON(200, storeInfo)
+	c.JSON(200, model.Get200Response(storeInfo))
 	return
 }
