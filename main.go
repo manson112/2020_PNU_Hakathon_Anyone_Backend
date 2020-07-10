@@ -38,7 +38,8 @@ func main() {
 
 	router := r.Group("/")
 	{
-		router.GET("/get/store/:store_id", route.GetStoreInfo)
+		router.GET("/store/get/:store_id", route.GetStoreInfo)
+		router.POST("/review/insert", route.PutReview)
 	}
 
 	// Authorization group

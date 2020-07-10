@@ -57,6 +57,7 @@ func GetStoreInfo(c *gin.Context) {
 		&storeInfo.Lng, &storeInfo.Noise,
 		&storeInfo.Cleanliness, &storeInfo.Kindness,
 		&storeInfo.Wifi)
+
 	if err != nil {
 		log.Println(err)
 		log.Println("Cannot exec query")
