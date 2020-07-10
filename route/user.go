@@ -23,6 +23,12 @@ type Bookmark struct {
 	CreatedAt  string `json:"created_at"`
 }
 
+// SearchHistory :: Selected search history data from database
+type SearchHistory struct {
+	SearchQuery string `json:"search_query"`
+	CreatedAt   string `json:"created_at"`
+}
+
 // GetBookmarks :: [Post] /user/bookmark
 func GetBookmarks(c *gin.Context) {
 	var userReq UserReq
@@ -62,4 +68,42 @@ func GetBookmarks(c *gin.Context) {
 		bookmarks = append(bookmarks, bookmark)
 	}
 	c.JSON(200, model.Get200Response(bookmarks))
+}
+
+// GetSearchHistory :: [Post] /user/search/history
+func GetSearchHistory(c *gin.Context) {
+	var userReq UserReq
+	err := c.Bind(&userReq)
+	if err != nil {
+		log.Fatal(err)
+		c.JSON(300, model.Get300Response(""))
+	}
+
+	query := "SELECT search_query, created_at " +
+		"FROM search_history " +
+		"WHERE user_id=" + userReq.UserID + " " +
+		"ORDER BY created_at DESC;"
+
+	db := database.DB()
+	results, err := db.Query(query)
+	if err != nil {
+		log.Println(err)
+		log.Println("Cannot exec query")
+		c.JSON(400, model.Get400Response(""))
+		return
+	}
+	var shs []SearchHistory
+	for results.Next() {
+		var sh SearchHistory
+		err = results.Scan(&sh.SearchQuery, &sh.CreatedAt)
+		if err != nil {
+			log.Println(err)
+			log.Println("Cannot get data")
+			c.JSON(400, model.Get400Response(""))
+			return
+		}
+		shs = append(shs, sh)
+	}
+
+	c.JSON(200, model.Get200Response(shs))
 }
