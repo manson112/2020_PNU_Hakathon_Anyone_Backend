@@ -8,6 +8,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type StoreReq struct {
+	StoreID string `json:"store_id"`
+}
+
 // StoreInfo ::
 type StoreInfo struct {
 	ID          int    `json:"id"`
@@ -29,7 +33,12 @@ type StoreInfo struct {
 
 // GetStoreInfo :: [Get] /store/get/:id
 func GetStoreInfo(c *gin.Context) {
-	storeID := c.Param("store_id")
+	var storeReq StoreReq
+	err := c.Bind(&storeReq)
+	if err != nil {
+		log.Fatal(err)
+		c.JSON(300, model.Get300Response(""))
+	}
 
 	var storeInfo StoreInfo
 	query := "SELECT A.id, A.category_id, C.name category, A.name store_name, " +
@@ -47,10 +56,10 @@ func GetStoreInfo(c *gin.Context) {
 		"LEFT JOIN category C ON A.category_id = C.id " +
 		"LEFT JOIN hashtaged_store D ON A.id = D.store_id " +
 		"LEFT JOIN hashtags E ON D.hashtag_id = E.id " +
-		"WHERE A.id=" + storeID + ";"
+		"WHERE A.id=" + storeReq.StoreID + ";"
 
 	db := database.DB()
-	err := db.QueryRow(query).Scan(&storeInfo.ID, &storeInfo.CategoryID,
+	err = db.QueryRow(query).Scan(&storeInfo.ID, &storeInfo.CategoryID,
 		&storeInfo.Category, &storeInfo.StoreName,
 		&storeInfo.Tags, &storeInfo.TotalSeat,
 		&storeInfo.CurrentSeat, &storeInfo.PhoneNumber,

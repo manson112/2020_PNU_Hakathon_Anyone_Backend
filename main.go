@@ -39,7 +39,7 @@ func main() {
 
 	router := r.Group("/")
 	{
-		router.GET("/store/get/:store_id", route.GetStoreInfo)
+		router.POST("/store/info", route.GetStoreInfo)
 		router.POST("/review/insert", route.PutReview)
 		router.POST("/user/bookmark", route.GetBookmarks)
 		router.POST("/user/search/history", route.GetSearchHistory)
