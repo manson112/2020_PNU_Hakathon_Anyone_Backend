@@ -48,6 +48,7 @@ func GetStoreInfo(c *gin.Context) {
 		"LEFT JOIN hashtaged_store D ON A.id = D.store_id " +
 		"LEFT JOIN hashtags E ON D.hashtag_id = E.id " +
 		"WHERE A.id=" + storeID + ";"
+
 	db := database.DB()
 	err := db.QueryRow(query).Scan(&storeInfo.ID, &storeInfo.CategoryID,
 		&storeInfo.Category, &storeInfo.StoreName,

@@ -40,6 +40,7 @@ func main() {
 	{
 		router.GET("/store/get/:store_id", route.GetStoreInfo)
 		router.POST("/review/insert", route.PutReview)
+		router.POST("/user/bookmark", route.GetBookmarks)
 	}
 
 	// Authorization group
