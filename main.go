@@ -6,6 +6,7 @@ import (
 
 	db "anyone-server/database"
 	fb "anyone-server/firebase"
+	route "anyone-server/route"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
@@ -35,8 +36,13 @@ func main() {
 	// Recovery middleware recovers from any panics and writes a 500 if there was one.
 	r.Use(gin.Recovery())
 
+	router := r.Group("/")
+	{
+		router.GET("/get/store/:store_id", route.GetStoreInfo)
+	}
+
 	// Authorization group
-	authorized := r.Group("/")
+	authorized := r.Group("/auth")
 	//authorized.Use(handlers.TokenAuthMiddleware())
 	{
 		authorized.GET("/ws", func(c *gin.Context) {
