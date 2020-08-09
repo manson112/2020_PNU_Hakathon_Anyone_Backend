@@ -1,5 +1,10 @@
 package model
 
+// Request ::
+type Request struct {
+	Data map[string]interface{} `form:"data" binding:"required"`
+}
+
 // Response ::
 type Response struct {
 	Code         int         `json:"code"`

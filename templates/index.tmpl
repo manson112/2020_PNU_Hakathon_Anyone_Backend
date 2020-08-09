@@ -1,0 +1,21 @@
+<html>
+    <h1>
+        {{ .title }}
+    </h1>
+    <body>
+        <form method="POST" action="/input">
+            가게 명 : 
+            <select name="id" id="id">
+                {{ range $k, $v := .dataList }}
+                    <option value="{{$v.ID}}">{{$v.Name}}</option>
+                {{ end }}
+            </select>
+            <br>
+            위도 : <input type="text" name="lat" id="lat" />
+            <br>
+            경도 : <input type="text" name="lng" id="lng" />
+            <br>
+            <input type="submit" value="저장" />
+        </form>
+    </body>
+</html>

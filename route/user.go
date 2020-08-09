@@ -10,13 +10,14 @@ import (
 
 // UserReq :: User request data for getting bookmarks
 type UserReq struct {
-	UserID string `form:"id" binding:"required"`
+	UserID string `form:"userID" binding:"required"`
 }
 
 // Bookmark :: Selected bookmark data from database
 type Bookmark struct {
 	ID         string `json:"id"`
 	CategoryID string `json:"category_id"`
+	Image      string `json:"image"`
 	Category   string `json:"category"`
 	StoreName  string `json:"store_name"`
 	Address    string `json:"address"`
@@ -38,7 +39,7 @@ func GetBookmarks(c *gin.Context) {
 		c.JSON(300, model.Get300Response(""))
 	}
 
-	query := "SELECT distinct B.id, B.category_id, C.name cateogry, B.name store_name, B.address, A.created_at " +
+	query := "SELECT distinct B.id, B.category_id, B.image, C.name cateogry, B.name store_name, B.address, A.created_at " +
 		"FROM bookmark A " +
 		"LEFT JOIN store_info B ON A.store_id = B.id " +
 		"LEFT JOIN category C ON B.category_id = C.id " +
@@ -56,7 +57,7 @@ func GetBookmarks(c *gin.Context) {
 	var bookmarks []Bookmark
 	for results.Next() {
 		var bookmark Bookmark
-		err = results.Scan(&bookmark.ID, &bookmark.CategoryID,
+		err = results.Scan(&bookmark.ID, &bookmark.CategoryID, &bookmark.Image,
 			&bookmark.Category, &bookmark.StoreName,
 			&bookmark.Address, &bookmark.CreatedAt)
 		if err != nil {
@@ -66,6 +67,7 @@ func GetBookmarks(c *gin.Context) {
 			return
 		}
 		bookmarks = append(bookmarks, bookmark)
+		log.Println(bookmark.Image)
 	}
 	c.JSON(200, model.Get200Response(bookmarks))
 }
@@ -104,6 +106,5 @@ func GetSearchHistory(c *gin.Context) {
 		}
 		shs = append(shs, sh)
 	}
-
 	c.JSON(200, model.Get200Response(shs))
 }
