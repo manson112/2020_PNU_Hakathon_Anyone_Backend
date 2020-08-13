@@ -255,7 +255,7 @@ func Input(c *gin.Context) {
 		c.JSON(300, model.Get300Response(""))
 	}
 	// query := "UPDATE store_info SET lat=" + req.Lat + ", lng=" + req.Lng + " WHERE id=" + req.ID + ";"
-	query := "UPDATE store_info SET image=" + req.Image + " WHERE id=" + req.ID + ";"
+	query := "UPDATE store_info SET image='" + req.Image + "' WHERE id=" + req.ID + ";"
 	db := database.DB()
 	insert, err := db.Query(query)
 	if err != nil {
@@ -264,5 +264,5 @@ func Input(c *gin.Context) {
 	}
 	defer insert.Close()
 
-	c.JSON(200, "SUCCESS")
+	c.Redirect(http.StatusMovedPermanently, "/input")
 }
