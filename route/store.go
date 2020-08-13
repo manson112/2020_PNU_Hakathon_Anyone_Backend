@@ -213,7 +213,7 @@ func GetStoreNearLocation(c *gin.Context) {
 // InputLatLng ::
 func InputLatLng(c *gin.Context) {
 	db := database.DB()
-	query := "SELECT id, name, address FROM store_info WHERE lat = '' and lng = '';"
+	query := "SELECT id, name, address FROM store_info WHERE image = '';"
 	results, err := db.Query(query)
 	if err != nil {
 		log.Println(err)
@@ -233,7 +233,7 @@ func InputLatLng(c *gin.Context) {
 		list = append(list, res)
 	}
 
-	c.HTML(http.StatusOK, "index.tmpl", gin.H{"title": "위도 경도 입력", "dataList": list})
+	c.HTML(http.StatusOK, "index.tmpl", gin.H{"title": "이미지", "dataList": list})
 }
 
 type ReqLatLng struct {
@@ -241,16 +241,21 @@ type ReqLatLng struct {
 	Lat string `form:"lat" binding:"required"`
 	Lng string `form:"lng" binding:"required"`
 }
+type ReqImage struct {
+	ID    string `form:"id" binding:"required"`
+	Image string `form:"image" binding:"required"`
+}
 
 // Input ::
 func Input(c *gin.Context) {
-	var req ReqLatLng
+	var req ReqImage
 	err := c.Bind(&req)
 	if err != nil {
 		log.Fatal(err)
 		c.JSON(300, model.Get300Response(""))
 	}
-	query := "UPDATE store_info SET lat=" + req.Lat + ", lng=" + req.Lng + " WHERE id=" + req.ID + ";"
+	// query := "UPDATE store_info SET lat=" + req.Lat + ", lng=" + req.Lng + " WHERE id=" + req.ID + ";"
+	query := "UPDATE store_info SET image=" + req.Image + " WHERE id=" + req.ID + ";"
 	db := database.DB()
 	insert, err := db.Query(query)
 	if err != nil {
@@ -259,5 +264,5 @@ func Input(c *gin.Context) {
 	}
 	defer insert.Close()
 
-	c.Redirect(http.StatusFound, "/input")
+	c.JSON(200, "SUCCESS")
 }

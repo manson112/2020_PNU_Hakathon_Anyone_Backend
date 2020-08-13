@@ -1,7 +1,7 @@
 package fb
 
 import (
-	"base/models"
+	models "anyone-server/model"
 	"context"
 	"encoding/json"
 	"log"

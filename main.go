@@ -9,12 +9,12 @@ import (
 	"os"
 
 	"anyone-server/database"
+	_ "anyone-server/database"
 	db "anyone-server/database"
 	fb "anyone-server/firebase"
 	route "anyone-server/route"
 
 	"github.com/gin-gonic/gin"
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
 )
 
@@ -48,9 +48,12 @@ func rJson() {
 			tSeat := fmt.Sprintf("%d", rand.Intn(30)+8)
 			query := "INSERT INTO store_info (category_id, lat, lng, name, total_seat, current_seat, phone_number, address, created_at, updated_at) " +
 				"VALUES (" + cID + ", '', '', '" + name + "', " + tSeat + ", 2, '" + phone + "', '" + address + "', NOW(), NOW());"
-			_, err := db.Query(query)
+			insert, err := db.Query(query)
 			if err != nil {
 				log.Println(err)
+				log.Println(query)
+			} else {
+				insert.Close()
 			}
 			log.Println("[" + fmt.Sprintf("%d", i) + "/4120]")
 			i++
