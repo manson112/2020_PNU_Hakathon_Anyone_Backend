@@ -184,7 +184,7 @@ func GetStoreNearLocation(c *gin.Context) {
 	log.Println(storeNearLocReq.Longitude)
 
 	query := "SELECT A.id, A.category_id, A.image as image, A.name, A.address, A.total_seat, A.current_seat, A.lat as latitude, A.lng as longitude, ( 6371000 * acos( cos( radians(" + storeNearLocReq.Latitude + ") ) * cos( radians( A.lat ) ) * cos( radians( A.lng ) - radians(" + storeNearLocReq.Longitude + ") ) + sin( radians(" + storeNearLocReq.Latitude + ") ) * sin(radians(A.lat)) ) ) AS distance FROM store_info A " +
-		"HAVING distance < 500 and A.category_id=" + storeNearLocReq.CategoryID
+		"HAVING distance < 500 and A.category_id=" + storeNearLocReq.CategoryID + " order by A.name"
 
 	db := database.DB()
 	results, err := db.Query(query)
@@ -205,8 +205,12 @@ func GetStoreNearLocation(c *gin.Context) {
 			c.JSON(400, model.Get400Response(""))
 			return
 		}
+		log.Println(item.ID)
+		log.Println(item.StoreName)
+		log.Println(item.Lat, " ", item.Lng)
 		items = append(items, item)
 	}
+	log.Println(items)
 	c.JSON(200, model.Get200Response(items))
 }
 
