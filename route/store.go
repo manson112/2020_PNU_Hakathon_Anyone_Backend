@@ -217,7 +217,7 @@ func GetStoreNearLocation(c *gin.Context) {
 // InputLatLng ::
 func InputLatLng(c *gin.Context) {
 	db := database.DB()
-	query := "SELECT id, name, address FROM store_info WHERE image = '';"
+	query := "SELECT id, name, address FROM store_info WHERE image = '' order by name;"
 	results, err := db.Query(query)
 	if err != nil {
 		log.Println(err)
