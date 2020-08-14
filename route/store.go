@@ -184,7 +184,7 @@ func GetStoreNearLocation(c *gin.Context) {
 	log.Println(storeNearLocReq.Longitude)
 
 	query := "SELECT A.id, A.category_id, A.image as image, A.name, A.address, A.total_seat, A.current_seat, A.lat as latitude, A.lng as longitude, ( 6371000 * acos( cos( radians(" + storeNearLocReq.Latitude + ") ) * cos( radians( A.lat ) ) * cos( radians( A.lng ) - radians(" + storeNearLocReq.Longitude + ") ) + sin( radians(" + storeNearLocReq.Latitude + ") ) * sin(radians(A.lat)) ) ) AS distance FROM store_info A " +
-		"HAVING distance < 500 and A.category_id=" + storeNearLocReq.CategoryID + " order by A.name"
+		"HAVING distance < 500 and A.category_id=" + storeNearLocReq.CategoryID + " order by distance limit 20"
 
 	db := database.DB()
 	results, err := db.Query(query)
@@ -214,10 +214,36 @@ func GetStoreNearLocation(c *gin.Context) {
 	c.JSON(200, model.Get200Response(items))
 }
 
+// // InputLatLng ::
+// func InputLatLng(c *gin.Context) {
+// 	db := database.DB()
+// 	query := "SELECT id, name, address FROM store_info WHERE lat='' and lng='' and (category_id=1 or category_id=2) order by name;"
+// 	results, err := db.Query(query)
+// 	if err != nil {
+// 		log.Println(err)
+// 		log.Println("Cannot exec query")
+// 		c.HTML(http.StatusOK, "index.tmpl", gin.H{"title": "ERROR"})
+// 	}
+// 	type R struct {
+// 		ID      string `json:"id"`
+// 		Name    string `json:"name"`
+// 		Address string `json:"address"`
+// 	}
+
+// 	var list []R
+// 	for results.Next() {
+// 		var res R
+// 		results.Scan(&res.ID, &res.Name, &res.Address)
+// 		list = append(list, res)
+// 	}
+
+// 	c.HTML(http.StatusOK, "index.tmpl", gin.H{"title": "이미지", "dataList": list})
+// }
+
 // InputLatLng ::
 func InputLatLng(c *gin.Context) {
 	db := database.DB()
-	query := "SELECT id, name, address FROM store_info WHERE image = '' order by name;"
+	query := "SELECT id, name, address FROM store_info WHERE image is null and (category_id=1 or category_id=2) order by name;"
 	results, err := db.Query(query)
 	if err != nil {
 		log.Println(err)
@@ -270,3 +296,24 @@ func Input(c *gin.Context) {
 
 	c.Redirect(http.StatusMovedPermanently, "/input")
 }
+
+// Input ::
+// func Input(c *gin.Context) {
+// 	var req ReqLatLng
+// 	err := c.Bind(&req)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 		c.JSON(300, model.Get300Response(""))
+// 	}
+// 	// query := "UPDATE store_info SET lat=" + req.Lat + ", lng=" + req.Lng + " WHERE id=" + req.ID + ";"
+// 	query := "UPDATE store_info SET lat=" + req.Lat + ", lng=" + req.Lng + " WHERE id=" + req.ID + ";"
+// 	db := database.DB()
+// 	insert, err := db.Query(query)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 		c.JSON(400, model.Get400Response(""))
+// 	}
+// 	defer insert.Close()
+// 	c.JSON(http.StatusOK, "")
+// 	// c.Redirect(http.StatusMovedPermanently, "/input")
+// }

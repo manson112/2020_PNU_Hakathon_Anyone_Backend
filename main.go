@@ -97,7 +97,6 @@ func main() {
 		router.POST("/store/near", route.GetStoreNearLocation)
 		router.GET("/input", route.InputLatLng)
 		router.POST("/input", route.Input)
-
 	}
 
 	// Authorization group
