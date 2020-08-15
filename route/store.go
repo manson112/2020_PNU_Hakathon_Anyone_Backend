@@ -317,3 +317,27 @@ func Input(c *gin.Context) {
 // 	c.JSON(http.StatusOK, "")
 // 	// c.Redirect(http.StatusMovedPermanently, "/input")
 // }
+
+type ReqCurSeat struct {
+	ID          string `form:"id" binding:"required"`
+	CurrentSeat string `form:"current" binding:"required"`
+}
+
+// PutStoreCurrentSeat ::
+func PutStoreCurrentSeat(c *gin.Context) {
+	var req ReqCurSeat
+	err := c.Bind(&req)
+	if err != nil {
+		log.Fatal(err)
+		c.JSON(300, model.Get300Response(""))
+	}
+	query := "UPDATE store_info SET current_seat=" + req.CurrentSeat + " WHERE id=" + req.ID + ";"
+	db := database.DB()
+	insert, err := db.Query(query)
+	if err != nil {
+		log.Fatal(err)
+		c.JSON(400, model.Get400Response(""))
+	}
+	defer insert.Close()
+	c.JSON(200, model.Get200Response(""))
+}

@@ -95,8 +95,10 @@ func main() {
 		router.POST("/user/search/history", route.GetSearchHistory)
 		router.POST("/store/home/near", route.GetStoreNearLocation)
 		router.POST("/store/near", route.GetStoreNearLocation)
+		router.POST("/store/seat/put", route.PutStoreCurrentSeat)
 		router.GET("/input", route.InputLatLng)
 		router.POST("/input", route.Input)
+
 	}
 
 	// Authorization group
