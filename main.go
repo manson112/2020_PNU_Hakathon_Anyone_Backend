@@ -96,6 +96,7 @@ func main() {
 		router.POST("/store/home/near", route.GetStoreNearLocation)
 		router.POST("/store/near", route.GetStoreNearLocation)
 		router.POST("/store/seat/put", route.PutStoreCurrentSeat)
+		router.POST("/store/seat/list/put", route.PutStoreCurrentSeatList)
 		router.GET("/input", route.InputLatLng)
 		router.POST("/input", route.Input)
 

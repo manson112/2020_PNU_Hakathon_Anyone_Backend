@@ -3,6 +3,7 @@ package route
 import (
 	"anyone-server/database"
 	"anyone-server/model"
+	"encoding/json"
 	"log"
 	"net/http"
 
@@ -323,6 +324,10 @@ type ReqCurSeat struct {
 	CurrentSeat string `form:"current" binding:"required"`
 }
 
+type ReqCurSeatList struct {
+	List []string `form:"data" binding:"required"`
+}
+
 // PutStoreCurrentSeat ::
 func PutStoreCurrentSeat(c *gin.Context) {
 	var req ReqCurSeat
@@ -339,5 +344,42 @@ func PutStoreCurrentSeat(c *gin.Context) {
 		c.JSON(400, model.Get400Response(""))
 	}
 	defer insert.Close()
+	c.JSON(200, model.Get200Response(""))
+}
+
+func PutStoreCurrentSeatList(c *gin.Context) {
+	data := new(ReqCurSeatList)
+	err := c.Bind(data)
+	if err != nil {
+		log.Fatal(err)
+		c.JSON(300, model.Get300Response(""))
+	}
+	var m []map[string]interface{}
+	if err = json.Unmarshal([]byte(data.List[0]), &m); err != nil {
+		log.Fatal(err)
+		c.JSON(300, model.Get300Response(""))
+	}
+	db := database.DB()
+
+	for i := 0; i < len(m); i++ {
+		id, ok := m[i]["id"].(string)
+		if !ok {
+			log.Fatal("Cannot Find id")
+			c.JSON(300, model.Get300Response(""))
+		}
+		seat, ok := m[i]["current"].(string)
+		if !ok {
+			log.Fatal("Cannot Find current")
+			c.JSON(300, model.Get300Response(""))
+		}
+		query := "UPDATE store_info SET current_seat=" + seat + " WHERE id=" + id + ";"
+		insert, err := db.Query(query)
+		if err != nil {
+			log.Fatal(err)
+			c.JSON(400, model.Get400Response(""))
+		}
+		insert.Close()
+	}
+
 	c.JSON(200, model.Get200Response(""))
 }
