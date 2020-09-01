@@ -170,6 +170,10 @@ type StoreNearLoc struct {
 	Lat         string `json:"lat"`
 	Lng         string `json:"lng"`
 	Distance    string `json:"distance"`
+	Noise       string `json:"noise"`
+	Cleanliness string `json:"cleanliness"`
+	Kindness    string `json:"kindness"`
+	Wifi        string `json:"wifi"`
 }
 
 // GetStoreNearLocation ::
@@ -184,7 +188,14 @@ func GetStoreNearLocation(c *gin.Context) {
 	log.Println(storeNearLocReq.Latitude)
 	log.Println(storeNearLocReq.Longitude)
 
-	query := "SELECT A.id, A.category_id, A.image as image, A.name, A.address, A.total_seat, A.current_seat, A.lat as latitude, A.lng as longitude, ( 6371000 * acos( cos( radians(" + storeNearLocReq.Latitude + ") ) * cos( radians( A.lat ) ) * cos( radians( A.lng ) - radians(" + storeNearLocReq.Longitude + ") ) + sin( radians(" + storeNearLocReq.Latitude + ") ) * sin(radians(A.lat)) ) ) AS distance FROM store_info A " +
+	query := "SELECT A.id, A.category_id, A.image as image, A.name, A.address, A.total_seat, A.current_seat, A.lat as latitude, A.lng as longitude, ( 6371000 * acos( cos( radians(" + storeNearLocReq.Latitude + ") ) * cos( radians( A.lat ) ) * cos( radians( A.lng ) - radians(" + storeNearLocReq.Longitude + ") ) + sin( radians(" + storeNearLocReq.Latitude + ") ) * sin(radians(A.lat)) ) ) AS distance, B.noise, B.cleanliness, B.kindness, B.wifi FROM store_info A " +
+		"LEFT JOIN (SELECT store_id, " +
+		"AVG(noise) noise, " +
+		"AVG(cleanliness) cleanliness, " +
+		"AVG(kindness) kindness, " +
+		"AVG(wifi) wifi " +
+		"FROM review " +
+		"GROUP BY store_id ) B ON A.id = B.store_id " +
 		"HAVING distance < 500 and A.category_id=" + storeNearLocReq.CategoryID + " order by distance limit 20"
 
 	db := database.DB()
@@ -199,7 +210,7 @@ func GetStoreNearLocation(c *gin.Context) {
 	var items []StoreNearLoc
 	for results.Next() {
 		var item StoreNearLoc
-		err = results.Scan(&item.ID, &item.CategoryID, &item.ImageURL, &item.StoreName, &item.Address, &item.TotalSeat, &item.CurrentSeat, &item.Lat, &item.Lng, &item.Distance)
+		err = results.Scan(&item.ID, &item.CategoryID, &item.ImageURL, &item.StoreName, &item.Address, &item.TotalSeat, &item.CurrentSeat, &item.Lat, &item.Lng, &item.Distance, &item.Noise, &item.Cleanliness, &item.Kindness, &item.Wifi)
 		if err != nil {
 			log.Println(err)
 			log.Println("Cannot get data")
