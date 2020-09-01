@@ -188,7 +188,7 @@ func GetStoreNearLocation(c *gin.Context) {
 	log.Println(storeNearLocReq.Latitude)
 	log.Println(storeNearLocReq.Longitude)
 
-	query := "SELECT A.id, A.category_id, A.image as image, A.name, A.address, A.total_seat, A.current_seat, A.lat as latitude, A.lng as longitude, ( 6371000 * acos( cos( radians(" + storeNearLocReq.Latitude + ") ) * cos( radians( A.lat ) ) * cos( radians( A.lng ) - radians(" + storeNearLocReq.Longitude + ") ) + sin( radians(" + storeNearLocReq.Latitude + ") ) * sin(radians(A.lat)) ) ) AS distance, B.noise, B.cleanliness, B.kindness, B.wifi FROM store_info A " +
+	query := "SELECT A.id, A.category_id, A.image as image, A.name, A.address, A.total_seat, A.current_seat, A.lat as latitude, A.lng as longitude, ( 6371000 * acos( cos( radians(" + storeNearLocReq.Latitude + ") ) * cos( radians( A.lat ) ) * cos( radians( A.lng ) - radians(" + storeNearLocReq.Longitude + ") ) + sin( radians(" + storeNearLocReq.Latitude + ") ) * sin(radians(A.lat)) ) ) AS distance, IFNULL(B.noise, 0.0) noise, IFNULL(B.cleanliness, 0.0) cleanliness, IFNULL(B.kindness, 0.0) kindness, IFNULL(B.wifi, 0.0) wifi FROM store_info A " +
 		"LEFT JOIN (SELECT store_id, " +
 		"AVG(noise) noise, " +
 		"AVG(cleanliness) cleanliness, " +
