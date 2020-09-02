@@ -121,7 +121,7 @@ func PutBookmark(c *gin.Context) {
 	err := c.Bind(&req)
 	if err != nil {
 		log.Fatal(err)
-		c.JSON(300, model.Get300Response(""))
+		c.JSON(300, model.Get300Response(nil))
 	}
 	log.Println(req.UserID)
 	log.Println(req.StoreID)
@@ -135,16 +135,16 @@ func PutBookmark(c *gin.Context) {
 		query = "DELETE FROM bookmark WHERE user_id=" + req.UserID + " and store_id=" + req.StoreID + ";"
 	}
 	if query == "" {
-		c.JSON(400, model.Get400Response(""))
+		c.JSON(400, model.Get400Response(nil))
 		return
 	}
 	db := database.DB()
 	insert, err := db.Query(query)
 	if err != nil {
 		log.Fatal(err)
-		c.JSON(400, model.Get400Response(""))
+		c.JSON(400, model.Get400Response(nil))
 		return
 	}
 	defer insert.Close()
-	c.JSON(200, model.Get200Response(""))
+	c.JSON(200, model.Get200Response(nil))
 }
