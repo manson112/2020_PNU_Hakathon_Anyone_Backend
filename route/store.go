@@ -174,6 +174,7 @@ type StoreNearLoc struct {
 	Cleanliness string `json:"cleanliness"`
 	Kindness    string `json:"kindness"`
 	Wifi        string `json:"wifi"`
+	Bookmarked  string `json:"bookmarked"`
 }
 
 // GetStoreNearLocation ::
@@ -188,7 +189,9 @@ func GetStoreNearLocation(c *gin.Context) {
 	log.Println(storeNearLocReq.Latitude)
 	log.Println(storeNearLocReq.Longitude)
 
-	query := "SELECT A.id, A.category_id, A.image as image, A.name, A.address, A.total_seat, A.current_seat, A.lat as latitude, A.lng as longitude, ( 6371000 * acos( cos( radians(" + storeNearLocReq.Latitude + ") ) * cos( radians( A.lat ) ) * cos( radians( A.lng ) - radians(" + storeNearLocReq.Longitude + ") ) + sin( radians(" + storeNearLocReq.Latitude + ") ) * sin(radians(A.lat)) ) ) AS distance, IFNULL(B.noise, 0.0) noise, IFNULL(B.cleanliness, 0.0) cleanliness, IFNULL(B.kindness, 0.0) kindness, IFNULL(B.wifi, 0.0) wifi FROM store_info A " +
+	query := "SELECT A.id, A.category_id, A.image as image, A.name, A.address, A.total_seat, A.current_seat, A.lat as latitude, A.lng as longitude, ( 6371000 * acos( cos( radians(" + storeNearLocReq.Latitude + ") ) * cos( radians( A.lat ) ) * cos( radians( A.lng ) - radians(" + storeNearLocReq.Longitude + ") ) + sin( radians(" + storeNearLocReq.Latitude + ") ) * sin(radians(A.lat)) ) ) AS distance, IFNULL(B.noise, 0.0) noise, IFNULL(B.cleanliness, 0.0) cleanliness, IFNULL(B.kindness, 0.0) kindness, IFNULL(B.wifi, 0.0) wifi, " +
+		"CASE WHEN C.store_id IS NOT NULL THEN true ELSE false END as bookmarked " +
+		"FROM store_info A " +
 		"LEFT JOIN (SELECT store_id, " +
 		"AVG(noise) noise, " +
 		"AVG(cleanliness) cleanliness, " +
@@ -196,6 +199,7 @@ func GetStoreNearLocation(c *gin.Context) {
 		"AVG(wifi) wifi " +
 		"FROM review " +
 		"GROUP BY store_id ) B ON A.id = B.store_id " +
+		"LEFT JOIN (SELECT store_id FROM bookmark WHERE user_id=1) C ON C.store_id = A.id " +
 		"HAVING distance < 500 and A.category_id=" + storeNearLocReq.CategoryID + " order by distance limit 20"
 
 	db := database.DB()
@@ -210,7 +214,7 @@ func GetStoreNearLocation(c *gin.Context) {
 	var items []StoreNearLoc
 	for results.Next() {
 		var item StoreNearLoc
-		err = results.Scan(&item.ID, &item.CategoryID, &item.ImageURL, &item.StoreName, &item.Address, &item.TotalSeat, &item.CurrentSeat, &item.Lat, &item.Lng, &item.Distance, &item.Noise, &item.Cleanliness, &item.Kindness, &item.Wifi)
+		err = results.Scan(&item.ID, &item.CategoryID, &item.ImageURL, &item.StoreName, &item.Address, &item.TotalSeat, &item.CurrentSeat, &item.Lat, &item.Lng, &item.Distance, &item.Noise, &item.Cleanliness, &item.Kindness, &item.Wifi, &item.Bookmarked)
 		if err != nil {
 			log.Println(err)
 			log.Println("Cannot get data")
