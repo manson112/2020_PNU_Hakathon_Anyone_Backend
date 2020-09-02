@@ -94,6 +94,7 @@ func main() {
 		router.POST("/user/bookmark", route.GetBookmarks)
 		router.POST("/user/bookmark/put", route.PutBookmark)
 		router.POST("/user/search/history", route.GetSearchHistory)
+		router.POST("/store/search", route.GetSearchResult)
 		router.POST("/store/home/near", route.GetStoreNearLocation)
 		router.POST("/store/near", route.GetStoreNearLocation)
 		router.POST("/store/seat/put", route.PutStoreCurrentSeat)

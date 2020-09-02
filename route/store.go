@@ -182,8 +182,7 @@ func GetStoreNearLocation(c *gin.Context) {
 	var storeNearLocReq StoreNearLocReq
 	err := c.Bind(&storeNearLocReq)
 	if err != nil {
-		log.Fatal(err)
-		c.JSON(300, model.Get300Response(""))
+		c.JSON(300, model.Get300Response(nil))
 	}
 	log.Println(storeNearLocReq.CategoryID)
 	log.Println(storeNearLocReq.Latitude)
@@ -207,7 +206,7 @@ func GetStoreNearLocation(c *gin.Context) {
 	if err != nil {
 		log.Println(err)
 		log.Println("Cannot exec query")
-		c.JSON(400, model.Get400Response(""))
+		c.JSON(400, model.Get400Response(nil))
 		return
 	}
 
@@ -218,12 +217,65 @@ func GetStoreNearLocation(c *gin.Context) {
 		if err != nil {
 			log.Println(err)
 			log.Println("Cannot get data")
-			c.JSON(400, model.Get400Response(""))
+			c.JSON(400, model.Get400Response(nil))
 			return
 		}
 		log.Println(item.ID)
 		log.Println(item.StoreName)
 		log.Println(item.Lat, " ", item.Lng)
+		items = append(items, item)
+	}
+	log.Println(items)
+	c.JSON(200, model.Get200Response(items))
+}
+
+// SearchReq ::
+type SearchReq struct {
+	CategoryID  string `form:"categoryID" binding:"required"`
+	SearchQuery string `form:"searchQuery" binding:"required"`
+}
+
+// GetSearchResult ::
+func GetSearchResult(c *gin.Context) {
+	var req SearchReq
+	err := c.Bind(&req)
+	if err != nil {
+		log.Fatal(err)
+		c.JSON(300, model.Get300Response(nil))
+	}
+	query := "SELECT A.id, A.category_id, A.image as image, A.name, A.address, A.total_seat, A.current_seat, A.lat as latitude, A.lng as longitude, 0 distance, IFNULL(B.noise, 0.0) noise, IFNULL(B.cleanliness, 0.0) cleanliness, IFNULL(B.kindness, 0.0) kindness, IFNULL(B.wifi, 0.0) wifi, " +
+		"CASE WHEN C.store_id IS NOT NULL THEN true ELSE false END as bookmarked " +
+		"FROM store_info A " +
+		"LEFT JOIN (SELECT store_id, " +
+		"AVG(noise) noise, " +
+		"AVG(cleanliness) cleanliness, " +
+		"AVG(kindness) kindness, " +
+		"AVG(wifi) wifi " +
+		"FROM review " +
+		"GROUP BY store_id ) B ON A.id = B.store_id " +
+		"LEFT JOIN (SELECT store_id FROM bookmark WHERE user_id=1) C ON C.store_id = A.id " +
+		"WHERE A.name LIKE '%" + req.SearchQuery + "%' " +
+		"AND A.category_id=" + req.CategoryID + " order by A.name;"
+
+	db := database.DB()
+	results, err := db.Query(query)
+	if err != nil {
+		log.Println(err)
+		log.Println("Cannot exec query")
+		c.JSON(400, model.Get400Response(nil))
+		return
+	}
+
+	var items []StoreNearLoc
+	for results.Next() {
+		var item StoreNearLoc
+		err = results.Scan(&item.ID, &item.CategoryID, &item.ImageURL, &item.StoreName, &item.Address, &item.TotalSeat, &item.CurrentSeat, &item.Lat, &item.Lng, &item.Distance, &item.Noise, &item.Cleanliness, &item.Kindness, &item.Wifi, &item.Bookmarked)
+		if err != nil {
+			log.Println(err)
+			log.Println("Cannot get data")
+			c.JSON(400, model.Get400Response(nil))
+			return
+		}
 		items = append(items, item)
 	}
 	log.Println(items)
