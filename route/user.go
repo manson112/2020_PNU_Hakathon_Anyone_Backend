@@ -108,3 +108,43 @@ func GetSearchHistory(c *gin.Context) {
 	}
 	c.JSON(200, model.Get200Response(shs))
 }
+
+type PutBookmarkReq struct {
+	UserID  string `form:"userID" binding:"required"`
+	StoreID string `form:"storeID" binding:"required"`
+	Checked string `form:"checked" binding:"required"`
+}
+
+// PutBookmark ::
+func PutBookmark(c *gin.Context) {
+	var req PutBookmarkReq
+	err := c.Bind(&req)
+	if err != nil {
+		log.Fatal(err)
+		c.JSON(300, model.Get300Response(""))
+	}
+	log.Println(req.UserID)
+	log.Println(req.StoreID)
+	log.Println(req.Checked)
+	query := ""
+	if req.Checked == "true" {
+		log.Println("True")
+		query = "INSERT INTO bookmark (user_id, store_id, created_at) VALUES (" + req.UserID + ", " + req.StoreID + ", NOW());"
+	} else if req.Checked == "false" {
+		log.Println("False")
+		query = "DELETE FROM bookmark WHERE user_id=" + req.UserID + " and store_id=" + req.StoreID + ";"
+	}
+	if query == "" {
+		c.JSON(400, model.Get400Response(""))
+		return
+	}
+	db := database.DB()
+	insert, err := db.Query(query)
+	if err != nil {
+		log.Fatal(err)
+		c.JSON(400, model.Get400Response(""))
+		return
+	}
+	defer insert.Close()
+	c.JSON(200, model.Get200Response(""))
+}
