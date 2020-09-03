@@ -164,7 +164,7 @@ func PutBookmark(c *gin.Context) {
 	query := ""
 	if req.Checked == "true" {
 		log.Println("True")
-		query = "INSERT INTO bookmark (user_id, store_id, created_at) VALUES (" + req.UserID + ", " + req.StoreID + ", NOW());"
+		query = "INSERT IGNORE INTO bookmark (user_id, store_id, created_at) VALUES (" + req.UserID + ", " + req.StoreID + ", NOW());"
 	} else if req.Checked == "false" {
 		log.Println("False")
 		query = "DELETE FROM bookmark WHERE user_id=" + req.UserID + " and store_id=" + req.StoreID + ";"
