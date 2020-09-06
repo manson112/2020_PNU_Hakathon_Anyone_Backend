@@ -12,7 +12,7 @@ import (
 
 // StoreReq ::
 type StoreReq struct {
-	StoreID string `form:"store_id"`
+	StoreID string `form:"storeID"`
 }
 
 // StoreHomeReq ::
@@ -449,4 +449,32 @@ func PutStoreCurrentSeatList(c *gin.Context) {
 	}
 
 	c.JSON(200, model.Get200Response(""))
+}
+
+// GetStoreCurrentSeat ::
+func GetStoreCurrentSeat(c *gin.Context) {
+	var req StoreReq
+	err := c.Bind(&req)
+	if err != nil {
+		log.Fatal(err)
+		c.JSON(300, model.Get300Response(""))
+	}
+	log.Println(req.StoreID)
+	query := "select current_seat from store_info where id=" + req.StoreID
+
+	var cur int
+	db := database.DB()
+	err = db.QueryRow(query).Scan(&cur)
+	if err != nil {
+		log.Println(err)
+		log.Println("Cannot exec query")
+		c.JSON(400, model.Get400Response(nil))
+		return
+	}
+
+	var res []int
+	res = append(res, cur)
+
+	c.JSON(200, model.Get200Response(res))
+	return
 }

@@ -89,6 +89,7 @@ func main() {
 	router := r.Group("/")
 	{
 		router.POST("/store/info", route.GetStoreInfo)
+		router.POST("/store/seat/get", route.GetStoreCurrentSeat)
 		router.POST("/store/home", route.GetStoreHome)
 		router.POST("/review/insert", route.PutReview)
 		router.POST("/user/bookmark", route.GetBookmarks)
